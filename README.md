@@ -1,2 +1,2 @@
 # InteractiveComponents
-Combinable components with dynamically and globally modfiable reactive attributes.
+Modular components with globally modifiable and dynamically reactive attributes.
