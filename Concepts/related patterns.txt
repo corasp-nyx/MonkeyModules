@@ -1,0 +1,3 @@
+factory pattern
+observer pattern
+composite pattern

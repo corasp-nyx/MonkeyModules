@@ -1,0 +1,12 @@
+GlobalEventManager -> holds all events
+GlobalModifierManager -> holds all modifiers
+Entity -> holds effects (EffectContainer)
+Effect -> holds attributes and calls events and creates modifiers (AttributeContainer)
+Attribute -> holds current and cached value and affecting modifiers and calls local changed event
+Modifier -> holds constant value or source attribute and source effect and passes on changed event
+
+When a Modifier is created or removed, all Attributes check if it applies to them
+If the Modifier is added to or removed from an Attribute, it calls a changed event
+All sourced Modifiers and their affected Attributes and so on recalculate and pass on event if changed
+The original change event passes on a created affected attribute list that affected attributes register in
+Attributes stop passing on event and throw a recursion exception when list contains them a set amount of times
