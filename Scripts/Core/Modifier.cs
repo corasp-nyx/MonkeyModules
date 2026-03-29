@@ -21,9 +21,6 @@ namespace TDP.InteractiveComponents
         /// <summary>This Event is called whenever a value used in the calculation of this Modifier changes. It is used to induce modified Attribute recalculations.</summary>
         public readonly Event<List<Attribute>> OnChange = new Event<List<Attribute>>();
 
-        /// <summary>True if this Modifier has been decommissioned.</summary>
-        public bool decommissioned { get; protected set; }
-
         
         /// <param name="requirements">Try to enter requirements in order of least to most performance heavy verifications, to reduce processing load.</param>
         public Modifier(IEnumerable<ModifierRequirement> requirements)
@@ -34,12 +31,13 @@ namespace TDP.InteractiveComponents
         /// <summary>
         /// Decommissions this Modifier, calling OnChange one last time, before cutting connections and marking it to not be used any further.
         /// </summary>
-        public virtual void Decommission()
+        public override void Decommission()
         {
-            decommissioned = true;
             GlobalManager.RemoveModifier(this);
             OnChange.Invoke(new List<Attribute>());
             OnChange.ClearListeners();
+
+            base.Decommission();
         }
 
         /// <summary>

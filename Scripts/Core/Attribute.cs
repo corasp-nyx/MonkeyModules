@@ -19,9 +19,6 @@ namespace TDP.InteractiveComponents
         /// <summary>This Event is called whenever the value of this Attribute changes. It is used to induce dependant Modifier recalculations, and includes a chain of previously changed Attributes.</summary>
         public readonly Event<List<Attribute>> OnChange = new Event<List<Attribute>>();
 
-        /// <summary>True if this Attribute has been discarded.</summary>
-        public bool decommissioned { get; protected set; }
-
         /// <summary>The amount of times this Attribute's value is allowed to be recalculated when included in a calculation dependecy recursion upon any value change.</summary>
         /// <remarks>More recursions may yield more accurate results, but increase performance costs. Requirement for this should be circumvented altogether by designing Modifiers with avoidance of such cases in mind.</remarks>
         protected const int maxRecursionsOnModCalculation = 3; // more recursions yield more accurate results but increase performance cost (necessity should be circumvented by good modifier design)
@@ -38,22 +35,29 @@ namespace TDP.InteractiveComponents
         }
 
         /// <summary>
-        /// Decommissions this Attribute when discarded by all users, calling OnChange one last time, before cutting connections and marking it as decommissioned.
+        /// Decommissions this Attribute when discarded by all users, calling OnChange one last time, before cutting off all registered users and marking it as decommissioned.
         /// </summary>
         /// <param name="forceDecommission">Not recommended to enable this without good reason.</param>
-        public virtual void Discard(object? discardingUser = null, bool forceDecommission = false)
+        public virtual void Discard(object discardingUser)
         {
             if (discardingUser != null)
                 UnregisterUser(discardingUser);
 
-            if (discardingUser == null || forceDecommission || (users?.Count ?? 0) == 0)
-            {
-                decommissioned = true;
-                if (users != null)
-                    UnregisterUsers(users);
-                OnChange.Invoke(new List<Attribute>() { this });
-                OnChange.ClearListeners();
-            }
+            if ((users?.Count ?? 0) == 0)
+                Decommission();
+        }
+
+        /// <summary>
+        /// Decommissions this Attribute, calling OnChange one last time, before cutting off all registered users and marking it to not be used any further.
+        /// </summary>
+        public override void Decommission()
+        {
+            if (users != null)
+                UnregisterUsers(users);
+            OnChange.Invoke(new List<Attribute>() { this });
+            OnChange.ClearListeners();
+
+            base.Decommission();
         }
 
         /// <summary>

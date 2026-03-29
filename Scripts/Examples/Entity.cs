@@ -10,8 +10,6 @@ namespace TDP.InteractiveComponents.Examples
     {
         public string displayName { get; protected set; } = "[entity]";
 
-        protected List<Modifier>? modifiersToDisposeOnDeath;
-
         public virtual void SetDisplayName(string name)
         {
             displayName = name;
@@ -21,23 +19,12 @@ namespace TDP.InteractiveComponents.Examples
         {
             MessageOutput.Log("死");
 
-            // dispose personal modifiers
-            if (modifiersToDisposeOnDeath != null)
-                foreach (Modifier modifier in new List<Modifier>(modifiersToDisposeOnDeath))
-                    modifier.Decommission();
-            modifiersToDisposeOnDeath = null;
+            Decommission();
         }
-
-        /// <summary>
-        /// Marks a Modifier to be decommissioned when this Entity dies. Recommended for Modifiers solely in personal use.
-        /// </summary>
-        public virtual void DisposeModifierOnDeath(Modifier modifier) => (modifiersToDisposeOnDeath ??= new List<Modifier>()).Add(modifier);
     }
 
     public class EntityHealth : LoadedEffect
     {
-        protected List<Modifier>? ownedModifiers; // (is this the solution to modifier cleanup? have it be individual or a part of base effect for all inheritors? todo)
-
         public EntityHealth()
         {
             // create health attribute
@@ -47,9 +34,9 @@ namespace TDP.InteractiveComponents.Examples
             Attribute<float> maxHealthAttribute = new Attribute<float>("MaxHealth");
             AddAttribute(maxHealthAttribute);
 
-            // clamp health between zero and max health attribute value (todo: add max health clamp modifier to entity death disposal)
-            GlobalManager.AddModifier(new ClampMaxModifier(new List<ModifierRequirement>() { new ModifierAttributeNameRequirement("Health"), new ModifierAttributeUserIdRequirement(uid) }, maxHealthAttribute)); // specific to this component
-            GlobalManager.AddModifier(new ClampMinConstantModifier(new List<ModifierRequirement>() { new ModifierAttributeNameRequirement("Health"), new ModifierAttributeUserTypeRequirement(GetType()) }, 0f)); // applies to all components of same type
+            // clamp health between zero and max health attribute value
+            AddModifier(new ClampMaxModifier(new List<ModifierRequirement>() { new ModifierAttributeNameRequirement("Health"), new ModifierAttributeUserIdRequirement(uid) }, maxHealthAttribute), true); // specific to this component
+            AddModifier(new ClampMinConstantModifier(new List<ModifierRequirement>() { new ModifierAttributeNameRequirement("Health"), new ModifierAttributeUserTypeRequirement(GetType()) }, 0f)); // applies to all components of same type
         }
 
         public virtual EntityHealth Initialise(Entity entity, float health, float maxHealth)
@@ -58,8 +45,8 @@ namespace TDP.InteractiveComponents.Examples
             GetAttribute<Attribute<float>>("Health")?.SetBaseValue(health);
             GetAttribute<Attribute<float>>("MaxHealth")?.SetBaseValue(maxHealth);
 
-            // register death event at 0 hp (didn't work in test. todo: fix) (todo: mark for disposal)
-            GlobalManager.AddModifier(new TargetValueEventModifier<float>(new List<ModifierRequirement>() { new ModifierAttributeNameRequirement("Health"), new ModifierAttributeUserIdRequirement(uid) }, 0)).OnTriggered.AddListener((_) => entity.Die(), entity.uid + "-Death");
+            // register death event at 0 hp (didn't work in test. todo: fix)
+            AddModifier(new TargetValueEventModifier<float>(new List<ModifierRequirement>() { new ModifierAttributeNameRequirement("Health"), new ModifierAttributeUserIdRequirement(uid) }, 0), true).OnTriggered.AddListener((_) => entity.Die(), entity.uid + "-Death");
 
             // become contained by entity
             if (!entity.containedEffects?.GetEffects().Contains(this) ?? true)
@@ -84,7 +71,7 @@ namespace TDP.InteractiveComponents.Examples
     }
 
     // EntityController (evaluates entity flags before passing on orders to EntityActions)
-    // EntityFlags (change to dictionary on entity?)
+    // EntityFlags (or rather just a dictionary on entity?)
 
     public class EntityActions : LoadedEffect
     {

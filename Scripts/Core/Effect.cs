@@ -11,7 +11,7 @@ namespace TDP.InteractiveComponents
     /// </summary>
     public abstract class Effect : InteractiveComponent
     {
-        public EffectContainer? containedEffects;
+        public EffectContainer? containedEffects; // (todo: simplify and add chain decommission option)
 
         /*private List<Modifier>? createdModifiers;
 
@@ -97,16 +97,32 @@ namespace TDP.InteractiveComponents
         /// Stores an Attribute to be used by this Effect, if one with the same name is not already in usage.
         /// </summary>
         /// <typeparam name="T">Attribute class.</typeparam>
-        public virtual void AddAttribute<T>(T attribute) where T : Attribute
+        public virtual void AddAttribute<T>(T attribute, bool discardOnDecommission = true) where T : Attribute
         {
             // avoid duplicates by checking immutable name
             if (!attributes.ContainsKey(attribute.name))
             {
                 attribute.RegisterUser(this);
                 attributes.Add(attribute.name, attribute);
+
+                if (discardOnDecommission)
+                    OnDecommission.AddListener(attribute.Discard, attribute.uid + decommissionEventKeySuffix); // (does not remove them from local dictionary, although that should be irrelevant at that point)
             }
             else if (attributes[attribute.name] is not T)
                 MessageOutput.Log($"Cannot add {typeof(T).Name} '{attribute.name}' because {typeof(LoadedEffect).Name} already uses an Attribute with that name but of a different Type: {attributes[attribute.name].GetType().Name}.");
+        }
+
+        /// <summary>
+        /// Globally registers a new Modifier to be applied to Attributes, excluding duplicates.
+        /// </summary>
+        /// <returns>The new Modifier if added, otherwise the already existing duplicate.</returns>
+        /// <param name="chainDecommission">Whether to decommission this Modifier when this Effect is decommissioned. (Should be enabled for Modifiers uniquely affecting this Effect)</param>
+        protected virtual T AddModifier<T>(T modifier, bool chainDecommission = false) where T : Modifier
+        {
+            if (chainDecommission)
+                OnDecommission.AddListener(modifier.Decommission, modifier.uid + decommissionEventKeySuffix);
+
+            return GlobalManager.AddModifier(modifier);
         }
 
         /// <summary>
@@ -142,7 +158,7 @@ namespace TDP.InteractiveComponents
         }
 
         /// <summary>
-        /// Decommission all Attributes used solely by this Effect. Recommended to do this when deleting an Effect.
+        /// Discards all Attributes used by this Effect, decommissioning them if not used elsewhere.
         /// </summary>
         public virtual void DiscardAllAttributes()
         {
