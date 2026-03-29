@@ -106,7 +106,7 @@ namespace TDP.InteractiveComponents
                 attributes.Add(attribute.name, attribute);
 
                 if (discardOnDecommission)
-                    OnDecommission.AddListener(attribute.Discard, attribute.uid + decommissionEventKeySuffix); // (does not remove them from local dictionary, although that should be irrelevant at that point)
+                    OnDecommission.AddListener(attribute.Discard, attribute.uid + decommissionEventKeySuffix); // (does not remove them from local dictionary, although that should be irrelevant at that point) (creates more bloat than discarding all on decommission, but retains easier customisation)
             }
             else if (attributes[attribute.name] is not T)
                 MessageOutput.Log($"Cannot add {typeof(T).Name} '{attribute.name}' because {typeof(LoadedEffect).Name} already uses an Attribute with that name but of a different Type: {attributes[attribute.name].GetType().Name}.");
