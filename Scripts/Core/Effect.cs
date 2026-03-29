@@ -8,7 +8,7 @@ namespace TDP.InteractiveComponents
     /// <summary>
     /// Base Effect class. Does not include Attributes.
     /// </summary>
-    public abstract class Effect : ECSComponent
+    public abstract class Effect : InteractiveComponent
     {
         public EffectContainer? containedEffects;
 

@@ -8,7 +8,7 @@ namespace TDP.InteractiveComponents
     /// <summary>
     /// Base Modifer class. Does not include Attribute modification. To modify Attribute&lt;T&gt;, use Modifier&lt;T&gt;.
     /// </summary>
-    public abstract class Modifier : ECSComponent
+    public abstract class Modifier : InteractiveComponent
     {
         /// <summary>Priority determining the place in Attribute modification order.</summary>
         public abstract int priority { get; protected set; }
@@ -37,7 +37,7 @@ namespace TDP.InteractiveComponents
         public virtual void Decommission()
         {
             decommissioned = true;
-            ECSManager.RemoveModifier(this);
+            GlobalManager.RemoveModifier(this);
             OnChange.Invoke(new List<Attribute>());
             OnChange.ClearListeners();
         }

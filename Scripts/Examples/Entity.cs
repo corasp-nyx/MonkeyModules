@@ -48,8 +48,8 @@ namespace TDP.InteractiveComponents.Examples
             AddAttribute(maxHealthAttribute);
 
             // clamp health between zero and max health attribute value (todo: add max health clamp modifier to entity death disposal)
-            ECSManager.AddModifier(new ClampMaxModifier(new List<ModifierRequirement>() { new ModifierAttributeNameRequirement("Health"), new ModifierAttributeUserIdRequirement(uid) }, maxHealthAttribute)); // specific to this component
-            ECSManager.AddModifier(new ClampMinConstantModifier(new List<ModifierRequirement>() { new ModifierAttributeNameRequirement("Health"), new ModifierAttributeUserTypeRequirement(GetType()) }, 0f)); // applies to all components of same type
+            GlobalManager.AddModifier(new ClampMaxModifier(new List<ModifierRequirement>() { new ModifierAttributeNameRequirement("Health"), new ModifierAttributeUserIdRequirement(uid) }, maxHealthAttribute)); // specific to this component
+            GlobalManager.AddModifier(new ClampMinConstantModifier(new List<ModifierRequirement>() { new ModifierAttributeNameRequirement("Health"), new ModifierAttributeUserTypeRequirement(GetType()) }, 0f)); // applies to all components of same type
         }
 
         public virtual EntityHealth Initialise(Entity entity, float health, float maxHealth)
@@ -59,7 +59,7 @@ namespace TDP.InteractiveComponents.Examples
             GetAttribute<Attribute<float>>("MaxHealth")?.SetBaseValue(maxHealth);
 
             // register death event at 0 hp (didn't work in test. todo: fix) (todo: mark for disposal)
-            ECSManager.AddModifier(new TargetValueEventModifier<float>(new List<ModifierRequirement>() { new ModifierAttributeNameRequirement("Health"), new ModifierAttributeUserIdRequirement(uid) }, 0)).OnTriggered.AddListener((_) => entity.Die(), entity.uid + "-Death");
+            GlobalManager.AddModifier(new TargetValueEventModifier<float>(new List<ModifierRequirement>() { new ModifierAttributeNameRequirement("Health"), new ModifierAttributeUserIdRequirement(uid) }, 0)).OnTriggered.AddListener((_) => entity.Die(), entity.uid + "-Death");
 
             // become contained by entity
             if (!entity.containedEffects?.GetEffects().Contains(this) ?? true)

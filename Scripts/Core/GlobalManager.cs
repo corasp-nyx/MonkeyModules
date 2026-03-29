@@ -5,7 +5,7 @@ using System.Linq;
 #nullable enable
 namespace TDP.InteractiveComponents
 {
-    public static class ECSManager
+    public static class GlobalManager
     {
         private static readonly Dictionary<string, Event<Effect>> events;
         private static readonly List<Modifier> modifiers;
@@ -14,7 +14,7 @@ namespace TDP.InteractiveComponents
 
         public static readonly Event<Modifier> OnModifierPublished;
 
-        static ECSManager()
+        static GlobalManager()
         {
             events ??= new Dictionary<string, Event<Effect>>();
             modifiers ??= new List<Modifier>();

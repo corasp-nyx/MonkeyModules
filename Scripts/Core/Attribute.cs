@@ -8,7 +8,7 @@ namespace TDP.InteractiveComponents
     /// <summary>
     /// Base Attribute class. Does not contain a value or modifiers.
     /// </summary>
-    public abstract class Attribute : ECSComponent
+    public abstract class Attribute : InteractiveComponent
     {
         /// <summary>The immutable non-unique identifier of this Attribute.</summary>
         public readonly string name;
@@ -34,7 +34,7 @@ namespace TDP.InteractiveComponents
             this.name = name;
 
             // validate newly created modifiers
-            ECSManager.OnModifierPublished.AddListener((Modifier modifier) => { if (ValidateModifier(modifier) && Calculate()) OnChange.Invoke(new List<Attribute>()); }, uid + validationEventKeySuffix);
+            GlobalManager.OnModifierPublished.AddListener((Modifier modifier) => { if (ValidateModifier(modifier) && Calculate()) OnChange.Invoke(new List<Attribute>()); }, uid + validationEventKeySuffix);
         }
 
         /// <summary>
@@ -123,7 +123,7 @@ namespace TDP.InteractiveComponents
         public virtual void RetrieveModifiers()
         {
             // retrieve new applicable modifiers
-            IEnumerable<Modifier> newModifiers = appliedModifiers != null ? ECSManager.GetApplicableModifiers(this).Where(modifier => !appliedModifiers.Contains(modifier)) : ECSManager.GetApplicableModifiers(this);
+            IEnumerable<Modifier> newModifiers = appliedModifiers != null ? GlobalManager.GetApplicableModifiers(this).Where(modifier => !appliedModifiers.Contains(modifier)) : GlobalManager.GetApplicableModifiers(this);
 
             if (newModifiers.Count() > 0)
             {

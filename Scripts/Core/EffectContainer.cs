@@ -7,7 +7,7 @@ namespace TDP.InteractiveComponents
     /// <summary>
     /// Container used to store groups of effects in a hierarchy.
     /// </summary>
-    public class EffectContainer : ECSComponent // (maybe implement IList, IEnumerable, etc.?)
+    public class EffectContainer : InteractiveComponent // (maybe implement IList, IEnumerable, etc.?)
     {
         protected List<Effect>? effects;
 

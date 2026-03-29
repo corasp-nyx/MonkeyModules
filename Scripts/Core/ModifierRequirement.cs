@@ -99,7 +99,7 @@ namespace TDP.InteractiveComponents
             string userId = this.userId;
 
             // returns true if any user inherits from ModularItem and has the specified id
-            return attribute.GetUsers().Any(user => ((user as ECSComponent)?.uid ?? "") == userId);
+            return attribute.GetUsers().Any(user => ((user as InteractiveComponent)?.uid ?? "") == userId);
         }
     }
 

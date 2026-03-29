@@ -20,7 +20,7 @@ namespace TDP.InteractiveComponents
         {
             // create personal source modifier and publish it to gather sources
             appliedModifiers ??= new List<Modifier>();
-            sourceModifier = ECSManager.AddModifier(new SourceModifier<T>(new List<ModifierRequirement>() { new ModifierAttributeIdRequirement(uid) }, sourceRequirements, targetIndex));
+            sourceModifier = GlobalManager.AddModifier(new SourceModifier<T>(new List<ModifierRequirement>() { new ModifierAttributeIdRequirement(uid) }, sourceRequirements, targetIndex));
         }
 
         public override void Discard(object? discardingUser = null, bool forceDecommission = false)
@@ -82,7 +82,7 @@ namespace TDP.InteractiveComponents
             sourceModifier.OnAnySourceChanged.AddListener(NotifyOfModifierChange, uid + calculationEventKeySuffix);
 
             // reduce source modifier functions to manual output (todo: check if a duplicate returned by ecsmanager could ruin this) (also decommission in parent) (relevant question: do ModifierRequirements equal each other?)
-            ECSManager.RemoveModifier(sourceModifier);
+            GlobalManager.RemoveModifier(sourceModifier);
             appliedModifiers?.Remove(sourceModifier);
             sourceModifier.OnChange.RemoveListener(uid + calculationEventKeySuffix);
         }
