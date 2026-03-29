@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Xml.Linq;
 
 #nullable enable
 namespace TDP.InteractiveComponents
@@ -103,7 +104,9 @@ namespace TDP.InteractiveComponents
             {
                 attribute.RegisterUser(this);
                 attributes.Add(attribute.name, attribute);
-            } // (todo: at warning message if contained attribute of same name is of a different type)
+            }
+            else if (attributes[attribute.name] is not T)
+                MessageOutput.Log($"Cannot add {typeof(T).Name} '{attribute.name}' because {typeof(LoadedEffect).Name} already uses an Attribute with that name but of a different Type: {attributes[attribute.name].GetType().Name}.");
         }
 
         /// <summary>
