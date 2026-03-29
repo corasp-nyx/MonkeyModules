@@ -266,7 +266,7 @@ namespace TDP.InteractiveComponents
                 foreach (Modifier<T> modifier in new List<Modifier>(appliedModifiers.OrderBy(modifier => modifier.priority))) // (does this implicit conversion work??)
                     modifier.Modify(ref value, this);
 
-            return cachedValue?.Equals(value) ?? value == null;
+            return !(cachedValue?.Equals(value) ?? value == null);
         }
     }
 }

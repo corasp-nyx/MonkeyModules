@@ -45,7 +45,7 @@ namespace TDP.InteractiveComponents.Examples
             GetAttribute<Attribute<float>>("Health")?.SetBaseValue(health);
             GetAttribute<Attribute<float>>("MaxHealth")?.SetBaseValue(maxHealth);
 
-            // register death event at 0 hp (didn't work in test. todo: fix)
+            // register death event at 0 hp
             AddModifier(new TargetValueEventModifier<float>(new List<ModifierRequirement>() { new ModifierAttributeNameRequirement("Health"), new ModifierAttributeUserIdRequirement(uid) }, 0), true).OnTriggered.AddListener((_) => entity.Die(), entity.uid + "-Death");
 
             // become contained by entity
