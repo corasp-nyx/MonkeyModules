@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using TDP.InteractiveComponents.Presets;
 
 #nullable enable
-namespace TDP.InteractiveComponents.Presets
+namespace TDP.InteractiveComponents.Examples
 {
     public class Entity : LoadedEffect
     {
