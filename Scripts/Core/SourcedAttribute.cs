@@ -23,13 +23,10 @@ namespace TDP.InteractiveComponents
             sourceModifier = GlobalManager.AddModifier(new SourceModifier<T>(new List<ModifierRequirement>() { new ModifierAttributeIdRequirement(uid) }, sourceRequirements, targetIndex));
         }
 
-        public override void Discard(object? discardingUser = null, bool forceDecommission = false)
+        public override void Decommission()
         {
-            base.Discard(discardingUser, forceDecommission);
-
             // decommission personal source modifier along with this attribute
-            if (decommissioned)
-                sourceModifier.Decommission();
+            sourceModifier.Decommission();
         }
     }
 
