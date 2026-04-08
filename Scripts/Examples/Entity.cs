@@ -6,7 +6,7 @@ using TDP.InteractiveComponents.Presets;
 #nullable enable
 namespace TDP.InteractiveComponents.Examples
 {
-    public class Entity : LoadedEffect
+    public class Entity : LoadedModule
     {
         public string displayName { get; protected set; } = "[entity]";
 
@@ -23,7 +23,7 @@ namespace TDP.InteractiveComponents.Examples
         }
     }
 
-    public class EntityHealth : LoadedEffect
+    public class EntityHealth : LoadedModule
     {
         public EntityHealth()
         {
@@ -49,8 +49,8 @@ namespace TDP.InteractiveComponents.Examples
             AddModifier(new TargetValueEventModifier<float>(new List<ModifierRequirement>() { new ModifierAttributeNameRequirement("Health"), new ModifierAttributeUserIdRequirement(uid) }, 0), true).OnTriggered.AddListener((_) => entity.Die(), entity.uid + "-Death");
 
             // become contained by entity
-            if (!entity.containedEffects?.GetEffects().Contains(this) ?? true)
-                (entity.containedEffects ??= new()).AddEffect(this);
+            if (!entity.subModules.Contains(this))
+                entity.subModules.Add(this);
 
             return this;
         }
@@ -73,7 +73,7 @@ namespace TDP.InteractiveComponents.Examples
     // EntityController (evaluates entity flags before passing on orders to EntityActions)
     // EntityFlags (or rather just a dictionary on entity?)
 
-    public class EntityActions : LoadedEffect
+    public class EntityActions : LoadedModule
     {
         protected Entity? entity;
 
@@ -82,8 +82,8 @@ namespace TDP.InteractiveComponents.Examples
             this.entity = entity;
 
             // become contained by entity
-            if (!entity.containedEffects?.GetEffects().Contains(this) ?? true)
-                (entity.containedEffects ??= new()).AddEffect(this);
+            if (!entity.subModules.Contains(this))
+                entity.subModules.Add(this);
 
             return this;
         }
@@ -92,7 +92,7 @@ namespace TDP.InteractiveComponents.Examples
         {
             if (item == null) return;
 
-            Inventory? container = entity?.containedEffects?.GetEffects().FirstOrDefault(effect => effect is Inventory) as Inventory;
+            Inventory? container = entity?.subModules.FirstOrDefault(effect => effect is Inventory) as Inventory;
             if (container != null)
             {
                 item.Stow();
@@ -108,7 +108,7 @@ namespace TDP.InteractiveComponents.Examples
 
             if (item is Equipment)
             {
-                EntityEquipment? holder = entity?.containedEffects?.GetEffects().FirstOrDefault(effect => effect is EntityEquipment) as EntityEquipment;
+                EntityEquipment? holder = entity?.subModules.FirstOrDefault(effect => effect is EntityEquipment) as EntityEquipment;
                 if (holder != null)
                 {
                     if (holder == ((Equipment)item).holder)
@@ -118,7 +118,7 @@ namespace TDP.InteractiveComponents.Examples
                 }
             }
 
-            Inventory? container = entity?.containedEffects?.GetEffects().FirstOrDefault(effect => effect is Inventory) as Inventory;
+            Inventory? container = entity?.subModules.FirstOrDefault(effect => effect is Inventory) as Inventory;
             if (container != null)
             {
                 if (container == item.container)
@@ -135,7 +135,7 @@ namespace TDP.InteractiveComponents.Examples
         {
             if (equipment == null) return;
 
-            EntityEquipment? holder = entity?.containedEffects?.GetEffects().FirstOrDefault(effect => effect is EntityEquipment) as EntityEquipment;
+            EntityEquipment? holder = entity?.subModules.FirstOrDefault(effect => effect is EntityEquipment) as EntityEquipment;
             if (holder != null && holder.GetEquipSlotAvailability(equipment.equipSlot) > 0)
             {
                 equipment.Stow();
@@ -144,7 +144,7 @@ namespace TDP.InteractiveComponents.Examples
         }
     }
 
-    public class EntityEquipment : LoadedEffect
+    public class EntityEquipment : LoadedModule
     {
         public Dictionary<string, int>? equipSlots { get; protected set; }
 
@@ -153,15 +153,15 @@ namespace TDP.InteractiveComponents.Examples
             this.equipSlots = equipSlots;
 
             // become contained by entity
-            if (!entity.containedEffects?.GetEffects().Contains(this) ?? true)
-                (entity.containedEffects ??= new()).AddEffect(this);
+            if (!entity.subModules.Contains(this))
+                entity.subModules.Add(this);
 
             return this;
         }
 
         public int GetEquipSlotAvailability(string equipSlot)
         {
-            return (equipSlots?.ContainsKey(equipSlot) ?? false) ? equipSlots[equipSlot] - (containedEffects?.GetEffects().Where(effect => effect is Equipment && ((Equipment)effect).equipSlot == equipSlot).Count() ?? 0) : 0;
+            return (equipSlots?.ContainsKey(equipSlot) ?? false) ? equipSlots[equipSlot] - (subModules.Where(effect => effect is Equipment && ((Equipment)effect).equipSlot == equipSlot).Count()) : 0;
         }
 
         public virtual void Equip(Equipment equipment)
@@ -173,8 +173,7 @@ namespace TDP.InteractiveComponents.Examples
             equipment.container?.Retrieve(equipment);
 
             // add equipment
-            containedEffects ??= new EffectContainer();
-            containedEffects.AddEffect(equipment);
+            subModules.Add(equipment);
 
             equipment.ChangeHolder(this);
         }
@@ -184,7 +183,7 @@ namespace TDP.InteractiveComponents.Examples
             if (equipment == null) return;
 
             // remove equipment
-            containedEffects?.RemoveEffect(equipment);
+            subModules.Remove(equipment);
 
             // unregister as holder of equipment
             if (equipment.holder == this)
@@ -193,11 +192,11 @@ namespace TDP.InteractiveComponents.Examples
 
         public virtual Equipment[] GetInvalidEquipment() // (does this method have any purpose?)
         {
-            return containedEffects?.GetEffects().Where(effect => effect is Equipment && false).Select(effect => (Equipment)effect).ToArray() ?? new Equipment[0];
+            return subModules.Where(effect => effect is Equipment && false).Select(effect => (Equipment)effect).ToArray() ?? new Equipment[0];
         }
     }
 
-    public class Inventory : LoadedEffect
+    public class Inventory : LoadedModule
     {
         public virtual void Store(Item item)
         {
@@ -208,8 +207,7 @@ namespace TDP.InteractiveComponents.Examples
             item.container?.Retrieve(item);
 
             // add item
-            containedEffects ??= new EffectContainer();
-            containedEffects.AddEffect(item);
+            subModules.Add(item);
 
             item.ChangeContainer(this);
         }
@@ -219,7 +217,7 @@ namespace TDP.InteractiveComponents.Examples
             if (item == null) return;
 
             // remove item
-            containedEffects?.RemoveEffect(item);
+            subModules.Remove(item);
 
             // unregister as container of item
             if (item.container == this)
@@ -227,7 +225,7 @@ namespace TDP.InteractiveComponents.Examples
         }
     }
 
-    public abstract class Item : LoadedEffect
+    public abstract class Item : LoadedModule
     {
         public string displayName { get; protected set; } = "[item]";
 

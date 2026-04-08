@@ -63,7 +63,7 @@ namespace TDP.InteractiveComponents
         /// <summary>
         /// Registers a class using this Attribute for detection by Modifiers.
         /// </summary>
-        /// <param name="user">Usually an Effect.</param>
+        /// <param name="user">Usually a Module.</param>
         public virtual void RegisterUser(object user)
         {
             users ??= new List<object>();
@@ -74,7 +74,7 @@ namespace TDP.InteractiveComponents
         /// <summary>
         /// Registers classes using this Attribute for detection by Modifiers.
         /// </summary>
-        /// <param name="user">Usually an Effect.</param>
+        /// <param name="user">Usually a Module.</param>
         public virtual void RegisterUsers(IEnumerable<object> users)
         {
             foreach (object user in users)
@@ -84,7 +84,7 @@ namespace TDP.InteractiveComponents
         /// <summary>
         /// Unregisters a class no longer using this Attribute.
         /// </summary>
-        /// <param name="user">Generally an Effect.</param>
+        /// <param name="user">Generally a Module.</param>
         public virtual void UnregisterUser(object user)
         {
             users?.RemoveAll(registration => registration == user);
@@ -93,7 +93,7 @@ namespace TDP.InteractiveComponents
         /// <summary>
         /// Unregisters classes no longer using this Attribute.
         /// </summary>
-        /// <param name="user">Generally an Effect.</param>
+        /// <param name="users">Generally Modules.</param>
         public virtual void UnregisterUsers(IEnumerable<object> users)
         {
             foreach (object user in new List<object>(users))
