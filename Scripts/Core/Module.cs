@@ -7,11 +7,11 @@ using System.Xml.Linq;
 namespace TDP.InteractiveComponents
 {
     /// <summary>
-    /// Base Effect class. Does not include Attributes.
+    /// Base Module class. Does not include Attributes.
     /// </summary>
-    public abstract class Effect : InteractiveComponent
+    public abstract class Module : InteractiveComponent
     {
-        public EffectContainer? containedEffects; // (todo: simplify and add chain decommission option)
+        public readonly List<Module> subModules = new List<Module>();
 
         /*private List<Modifier>? createdModifiers;
 
@@ -84,17 +84,17 @@ namespace TDP.InteractiveComponents
     }
 
     /// <summary>
-    /// Base Effect class including Attributes.
+    /// Base Module class including Attributes.
     /// </summary>
-    public abstract class LoadedEffect : Effect
+    public abstract class LoadedModule : Module
     {
         /// <summary>
-        /// References to all Attributes used by this Effect. Should not contain duplicates. Recommended to use public access methods when inheriting.
+        /// References to all Attributes used by this Module. Should not contain duplicates. Recommended to use public access methods when inheriting.
         /// </summary>
         protected readonly Dictionary<string, Attribute> attributes = new Dictionary<string, Attribute>();
 
         /// <summary>
-        /// Stores an Attribute to be used by this Effect, if one with the same name is not already in usage.
+        /// Stores an Attribute to be used by this Module, if one with the same name is not already in usage.
         /// </summary>
         /// <typeparam name="T">Attribute class.</typeparam>
         public virtual void AddAttribute<T>(T attribute, bool discardOnDecommission = true) where T : Attribute
@@ -109,14 +109,14 @@ namespace TDP.InteractiveComponents
                     OnDecommission.AddListener(attribute.Discard, attribute.uid + decommissionEventKeySuffix); // (does not remove them from local dictionary, although that should be irrelevant at that point) (creates more bloat than discarding all on decommission, but retains easier customisation)
             }
             else if (attributes[attribute.name] is not T)
-                MessageOutput.Log($"Cannot add {typeof(T).Name} '{attribute.name}' because {typeof(LoadedEffect).Name} already uses an Attribute with that name but of a different Type: {attributes[attribute.name].GetType().Name}.");
+                MessageOutput.Log($"Cannot add {typeof(T).Name} '{attribute.name}' because {typeof(LoadedModule).Name} already uses an Attribute with that name but of a different Type: {attributes[attribute.name].GetType().Name}.");
         }
 
         /// <summary>
         /// Globally registers a new Modifier to be applied to Attributes, excluding duplicates.
         /// </summary>
         /// <returns>The new Modifier if added, otherwise the already existing duplicate.</returns>
-        /// <param name="chainDecommission">Whether to decommission this Modifier when this Effect is decommissioned. (Should be enabled for Modifiers uniquely affecting this Effect)</param>
+        /// <param name="chainDecommission">Whether to decommission this Modifier when this Module is decommissioned. (Should be enabled for Modifiers uniquely affecting this Module)</param>
         protected virtual T AddModifier<T>(T modifier, bool chainDecommission = false) where T : Modifier
         {
             if (chainDecommission)
@@ -126,7 +126,7 @@ namespace TDP.InteractiveComponents
         }
 
         /// <summary>
-        /// Unregisters an Attribute used by this Effect, without decommissioning it.
+        /// Unregisters an Attribute used by this Module, without decommissioning it.
         /// </summary>
         /// <typeparam name="T">Attribute class.</typeparam>
         public virtual void RemoveAttribute<T>(T attribute) where T : Attribute
@@ -136,7 +136,7 @@ namespace TDP.InteractiveComponents
         }
 
         /// <summary>
-        /// Unregisters an Attribute used by this Effect and decommissions it from further use, if not currently used elsewhere.
+        /// Unregisters an Attribute used by this Module and decommissions it from further use, if not currently used elsewhere.
         /// </summary>
         /// <typeparam name="T">Attribute class.</typeparam>
         public virtual void DiscardAttribute<T>(T attribute) where T : Attribute
@@ -145,20 +145,20 @@ namespace TDP.InteractiveComponents
             attributes.Remove(attribute.name);
         }
 
-        /// <returns>All Attributes used by this Effect (does not return null)</returns>
+        /// <returns>All Attributes used by this Module (does not return null)</returns>
         public virtual Attribute[] GetAttributes()
         {
             return attributes.Values.ToArray();
         }
 
-        /// <returns>Whether this Effect uses an Attribute with the specified name.</returns>
+        /// <returns>Whether this Module uses an Attribute with the specified name.</returns>
         public virtual bool HasAttribute(string name)
         {
             return attributes.ContainsKey(name);
         }
 
         /// <summary>
-        /// Discards all Attributes used by this Effect, decommissioning them if not used elsewhere.
+        /// Discards all Attributes used by this Module, decommissioning them if not used elsewhere.
         /// </summary>
         public virtual void DiscardAllAttributes()
         {
@@ -166,11 +166,11 @@ namespace TDP.InteractiveComponents
                 DiscardAttribute(attribute);
         }
 
-        /// <returns>Attribute with specified name, if used by this Effect, otherwise null.</returns>
+        /// <returns>Attribute with specified name, if used by this Module, otherwise null.</returns>
         /// <param name="ignoreWarning">Suppresses log output on failure.</param>
         public virtual Attribute? GetAttribute(string name, bool ignoreWarning = false) => GetAttribute<Attribute>(name, ignoreWarning);
 
-        /// <returns>Attribute with specified Type and name, if used by this Effect, otherwise null.</returns>
+        /// <returns>Attribute with specified Type and name, if used by this Module, otherwise null.</returns>
         /// <param name="ignoreWarning">Suppresses log output on failure.</param>
         public virtual T? GetAttribute<T>(string name, bool ignoreWarning = false) where T : Attribute
         {
@@ -178,7 +178,7 @@ namespace TDP.InteractiveComponents
             if (!attributes.ContainsKey(name))
             {
                 if (!ignoreWarning)
-                    MessageOutput.Log($"Cannot access {typeof(T).Name} '{name}' because {typeof(LoadedEffect).Name} does not have an Attribute of that name.");
+                    MessageOutput.Log($"Cannot access {typeof(T).Name} '{name}' because {typeof(LoadedModule).Name} does not have an Attribute of that name.");
                 return null;
             }
 
@@ -186,7 +186,7 @@ namespace TDP.InteractiveComponents
             if (!(attributes[name] is T))
             {
                 if (!ignoreWarning)
-                    MessageOutput.Log($"Cannot access {typeof(T).Name} '{name}' because the Attribute of that name used by {typeof(LoadedEffect).Name} is of the incompatible Type {attributes[name].GetType().Name}.");
+                    MessageOutput.Log($"Cannot access {typeof(T).Name} '{name}' because the Attribute of that name used by {typeof(LoadedModule).Name} is of the incompatible Type {attributes[name].GetType().Name}.");
                 return null;
             }
 

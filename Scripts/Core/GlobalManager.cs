@@ -7,7 +7,7 @@ namespace TDP.InteractiveComponents
 {
     public static class GlobalManager
     {
-        private static readonly Dictionary<string, Event<Effect>> events;
+        private static readonly Dictionary<string, Event<Module>> events;
         private static readonly List<Modifier> modifiers;
         //private static readonly List<Effect> effects;
         //private static readonly List<Attribute> attributes;
@@ -16,7 +16,7 @@ namespace TDP.InteractiveComponents
 
         static GlobalManager()
         {
-            events ??= new Dictionary<string, Event<Effect>>();
+            events ??= new Dictionary<string, Event<Module>>();
             modifiers ??= new List<Modifier>();
             //effects ??= new List<Effect>();
             //attributes ??= new List<Attribute>();
@@ -27,7 +27,7 @@ namespace TDP.InteractiveComponents
         /// <summary>
         /// Broadcasts an Event to all listeners.
         /// </summary>
-        public static void InvokeEvent(string eventName, Effect invocationSource)
+        public static void InvokeEvent(string eventName, Module invocationSource)
         {
             if (events.ContainsKey(eventName))
                 events[eventName].Invoke(invocationSource);
@@ -36,11 +36,11 @@ namespace TDP.InteractiveComponents
         /// <summary>
         /// Registers an Action to be invoked when the specified Event is called. The key can be used to unregister this Action. (duplicate keys are allowed)
         /// </summary>
-        public static void AddEventListener(string eventName, Action<Effect> call, string listenerKey)
+        public static void AddEventListener(string eventName, Action<Module> call, string listenerKey)
         {
             // create event if it does not exist yet
             if (!events.ContainsKey(eventName))
-                events.Add(eventName, new Event<Effect>());
+                events.Add(eventName, new Event<Module>());
 
             // add listener
             events[eventName].AddListener(call, listenerKey);

@@ -9,14 +9,14 @@ namespace TDP.InteractiveComponents
     /// </summary>
     public class EffectContainer : InteractiveComponent // (maybe implement IList, IEnumerable, etc.?)
     {
-        protected List<Effect>? effects;
+        protected List<Module>? effects;
 
         /// <summary>
         /// Adds Effect. (does not exclude duplicates)
         /// </summary>
-        public void AddEffect(Effect effect)
+        public void AddEffect(Module effect)
         {
-            this.effects ??= new List<Effect>();
+            this.effects ??= new List<Module>();
 
             this.effects.Add(effect);
         }
@@ -24,9 +24,9 @@ namespace TDP.InteractiveComponents
         /// <summary>
         /// Adds range of Effects. (does not exclude duplicates)
         /// </summary>
-        public void AddEffects(IEnumerable<Effect> effects)
+        public void AddEffects(IEnumerable<Module> effects)
         {
-            this.effects ??= new List<Effect>();
+            this.effects ??= new List<Module>();
 
             this.effects.AddRange(effects);
         }
@@ -36,7 +36,7 @@ namespace TDP.InteractiveComponents
         /// </summary>
         public void AddEffects(EffectContainer container)
         {
-            this.effects ??= new List<Effect>();
+            this.effects ??= new List<Module>();
 
             this.effects.AddRange(container.GetEffects());
         }
@@ -44,7 +44,7 @@ namespace TDP.InteractiveComponents
         /// <summary>
         /// Removes first occurrence of specified Effect.
         /// </summary>
-        public void RemoveEffect(Effect effect)
+        public void RemoveEffect(Module effect)
         {
             this.effects?.Remove(effect);
         }
@@ -52,17 +52,17 @@ namespace TDP.InteractiveComponents
         /// <summary>
         /// Removes all occurrences of specified Effects.
         /// </summary>
-        public void RemoveEffects(IEnumerable<Effect> effects)
+        public void RemoveEffects(IEnumerable<Module> effects)
         {
             if (this.effects != null)
-                foreach (Effect effect in effects)
+                foreach (Module effect in effects)
                     this.effects.RemoveAll(e => e == effect);
         }
 
         /// <summary>
         /// Removes all matching Effects.
         /// </summary>
-        public void RemoveAllEffects(Predicate<Effect> match)
+        public void RemoveAllEffects(Predicate<Module> match)
         {
             this.effects?.RemoveAll(match);
         }
@@ -76,9 +76,9 @@ namespace TDP.InteractiveComponents
         }
 
         /// <returns>Effects in this container (does not return null)</returns>
-        public Effect[] GetEffects()
+        public Module[] GetEffects()
         {
-            return effects?.ToArray() ?? new Effect[0];
+            return effects?.ToArray() ?? new Module[0];
         }
     }
 }
