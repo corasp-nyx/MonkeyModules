@@ -35,8 +35,8 @@ namespace TDP.InteractiveComponents.Examples
             AddAttribute(maxHealthAttribute);
 
             // clamp health between zero and max health attribute value
-            AddModifier(new ClampMaxModifier(new List<ModifierRequirement>() { new ModifierAttributeNameRequirement("Health"), new ModifierAttributeUserIdRequirement(uid) }, maxHealthAttribute), true); // specific to this component
-            AddModifier(new ClampMinConstantModifier(new List<ModifierRequirement>() { new ModifierAttributeNameRequirement("Health"), new ModifierAttributeUserTypeRequirement(GetType()) }, 0f)); // applies to all components of same type
+            AddModifier(new ClampMaxModifier(new List<ModifierRequirement>() { new ModifierAttributeNameRequirement("Health"), new ModifierAttributeUserIdRequirement(uid) }, maxHealthAttribute), true); // specific to this Module
+            AddModifier(new ClampMinConstantModifier(new List<ModifierRequirement>() { new ModifierAttributeNameRequirement("Health"), new ModifierAttributeUserTypeRequirement(GetType()) }, 0f)); // applies to all Modules of same type
         }
 
         public virtual EntityHealth Initialise(Entity entity, float health, float maxHealth)
