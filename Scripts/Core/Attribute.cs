@@ -12,7 +12,9 @@ namespace TDP.InteractiveComponents
     {
         /// <summary>The immutable non-unique identifier of this Attribute.</summary>
         public readonly string name;
-        public List<object>? users { get; protected set; }
+
+        /// <summary>The users of this Attribute.</summary>
+        protected List<object>? users;
 
         protected List<Modifier>? appliedModifiers;
 
@@ -35,9 +37,8 @@ namespace TDP.InteractiveComponents
         }
 
         /// <summary>
-        /// Decommissions this Attribute when discarded by all users, calling OnChange one last time, before cutting off all registered users and marking it as decommissioned.
+        /// Decommissions this Attribute when discarded by all users, calling OnChange one last time, before cutting connections and marking it as decommissioned.
         /// </summary>
-        /// <param name="forceDecommission">Not recommended to enable this without good reason.</param>
         public virtual void Discard(object discardingUser)
         {
             if (discardingUser != null)
@@ -48,7 +49,7 @@ namespace TDP.InteractiveComponents
         }
 
         /// <summary>
-        /// Decommissions this Attribute, calling OnChange one last time, before cutting off all registered users and marking it to not be used any further.
+        /// Decommissions this Attribute, calling OnChange one last time, before cutting connections and marking it to not be used any further.
         /// </summary>
         public override void Decommission()
         {
@@ -74,7 +75,7 @@ namespace TDP.InteractiveComponents
         /// <summary>
         /// Registers classes using this Attribute for detection by Modifiers.
         /// </summary>
-        /// <param name="user">Usually a Module.</param>
+        /// <param name="user">Usually Modules.</param>
         public virtual void RegisterUsers(IEnumerable<object> users)
         {
             foreach (object user in users)
