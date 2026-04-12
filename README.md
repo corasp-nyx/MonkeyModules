@@ -40,8 +40,7 @@ AddModifier(
         new List<ModifierRequirement>() { // tell the Modifier which Attributes to target
             new ModifierAttributeNameRequirement("Health"),
             new ModifierAttributeUserIdRequirement(uid) }, // applies only to this Module (its immutable unique identifier)
-        maxHealthAttribute), // set maximum to value of max health Attribute
-    true);
+        maxHealthAttribute)); // set maximum to value of max health Attribute
 
 AddModifier(
     new ClampMinConstantModifier(
@@ -66,8 +65,7 @@ public void Initialise(EntityModule entity, float health, float maxHealth)
             new List<ModifierRequirement>() {
                 new ModifierAttributeNameRequirement("Health"),
                 new ModifierAttributeUserIdRequirement(uid) },
-            0),
-        true).OnTriggered.AddListener((_) => entity.Die(), entity.uid + "-Death");
+            0)).OnTriggered.AddListener((_) => entity.Die(), entity.uid + "-Death");
 
     // parent to entity
     if (!entity.subModules.Contains(this))
