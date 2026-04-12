@@ -35,7 +35,7 @@ namespace TDP.InteractiveComponents.Examples
             AddAttribute(maxHealthAttribute);
 
             // clamp health between zero and max health attribute value
-            AddModifier(new ClampMaxModifier(new List<ModifierRequirement>() { new ModifierAttributeNameRequirement("Health"), new ModifierAttributeUserIdRequirement(uid) }, maxHealthAttribute), true); // specific to this Module
+            AddModifier(new ClampMaxModifier(new List<ModifierRequirement>() { new ModifierAttributeNameRequirement("Health"), new ModifierAttributeUserIdRequirement(uid) }, maxHealthAttribute)); // specific to this Module
             AddModifier(new ClampMinConstantModifier(new List<ModifierRequirement>() { new ModifierAttributeNameRequirement("Health"), new ModifierAttributeUserTypeRequirement(GetType()) }, 0f)); // applies to all Modules of same type
         }
 
@@ -46,7 +46,7 @@ namespace TDP.InteractiveComponents.Examples
             GetAttribute<Attribute<float>>("MaxHealth")?.SetBaseValue(maxHealth);
 
             // register death event at 0 hp
-            AddModifier(new TargetValueEventModifier<float>(new List<ModifierRequirement>() { new ModifierAttributeNameRequirement("Health"), new ModifierAttributeUserIdRequirement(uid) }, 0), true).OnTriggered.AddListener((_) => entity.Die(), entity.uid + "-Death");
+            AddModifier(new TargetValueEventModifier<float>(new List<ModifierRequirement>() { new ModifierAttributeNameRequirement("Health"), new ModifierAttributeUserIdRequirement(uid) }, 0)).OnTriggered.AddListener((_) => entity.Die(), entity.uid + "-Death");
 
             // become contained by entity
             if (!entity.subModules.Contains(this))
