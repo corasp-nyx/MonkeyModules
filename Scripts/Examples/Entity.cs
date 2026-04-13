@@ -71,7 +71,32 @@ namespace TDP.InteractiveComponents.Examples
     }
 
     // EntityController (evaluates entity flags before passing on orders to EntityActions)
-    // EntityFlags (or rather just a dictionary on entity?)
+
+    public class EntityFlags : LoadedModule
+    {
+        public virtual EntityFlags Initialise(Entity entity)
+        {
+            // become contained by entity
+            if (!entity.subModules.Contains(this))
+                entity.subModules.Add(this);
+
+            return this;
+        }
+
+        /// <returns>Value of Entity flag. Should be used instead of GetAttribute() to check flags.</returns>
+        public bool GetFlag(string name, bool defaultValue)
+        {
+            // get or create flag (existing modifiers are immediately applied on creation)
+            if (HasAttribute(name))
+                return GetAttribute<Attribute<bool>>(name)?.GetValue() ?? defaultValue;
+            else
+            {
+                Attribute<bool> flag = new Attribute<bool>(name, defaultValue);
+                AddAttribute(flag);
+                return flag.GetValue();
+            }
+        }
+    }
 
     public class EntityActions : LoadedModule
     {
