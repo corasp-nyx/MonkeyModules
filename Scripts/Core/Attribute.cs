@@ -69,7 +69,10 @@ namespace TDP.InteractiveComponents
         {
             users ??= new List<object>();
             if (!users.Contains(user))
+            {
                 users.Add(user);
+                NotifyOfModifierChange(new()); // revalidate modifiers after user change or perhaps for first time after creating attribute
+            }
         }
 
         /// <summary>
@@ -89,6 +92,7 @@ namespace TDP.InteractiveComponents
         public virtual void UnregisterUser(object user)
         {
             users?.RemoveAll(registration => registration == user);
+            NotifyOfModifierChange(new()); // revalidate modifiers after user change (todo: prevent this from firing one more time before decommission when being discarded?)
         }
 
         /// <summary>
@@ -110,7 +114,7 @@ namespace TDP.InteractiveComponents
         /// <summary>
         /// Removes all unapplicable Modifiers, without recalculating.
         /// </summary>
-        public virtual void DisposeModifiers()
+        protected virtual void DisposeModifiers()
         {
             // (remove unapplicable modifiers and unhook from their change events)
             if (appliedModifiers != null)
@@ -125,7 +129,7 @@ namespace TDP.InteractiveComponents
         /// <summary>
         /// Checks for new applicable Modifiers and saves them, without recalculating.
         /// </summary>
-        public virtual void RetrieveModifiers()
+        protected virtual void RetrieveModifiers()
         {
             // retrieve new applicable modifiers
             IEnumerable<Modifier> newModifiers = appliedModifiers != null ? GlobalManager.GetApplicableModifiers(this).Where(modifier => !appliedModifiers.Contains(modifier)) : GlobalManager.GetApplicableModifiers(this);
@@ -148,7 +152,7 @@ namespace TDP.InteractiveComponents
         /// Checks if the given Modifier is applicable, and if need be, applies or unapplies it.
         /// </summary>
         /// <returns>Whether the Modifier has been either applied or unapplied.</returns>
-        public virtual bool ValidateModifier(Modifier modifier)
+        protected virtual bool ValidateModifier(Modifier modifier)
         {
             // check if this modifier is not already applied
             if (!appliedModifiers?.Contains(modifier) ?? true)
@@ -186,7 +190,7 @@ namespace TDP.InteractiveComponents
         /// Called when modifiers changed, to trigger value recalculation.
         /// </summary>
         /// <param name="changedAttributes">List of Attributes recalculated due to change.</param>
-        protected virtual void NotifyOfModifierChange(List<Attribute> changedAttributes)
+        public virtual void NotifyOfModifierChange(List<Attribute> changedAttributes)
         {
             // recalculate attribute value and notify sourcing modifiers on change, as long as this attribute has not been recalculated through a single change too many times
             if (changedAttributes.FindAll(attribute => attribute == this).Count < maxRecursionsOnModCalculation)
@@ -220,7 +224,7 @@ namespace TDP.InteractiveComponents
     public class Attribute<T> : Attribute
     {
         /// <summary>The calculated, up-to-date value of this Attribute.</summary>
-        protected T? value; // (changed to C# version 9.0 to allow for nullable types of either value or reference)
+        protected T? value; // (changed to C# version 9.0 to allow for ambiguous nullable types of either value or reference)
         /// <summary>The unmodified base value of this Attribute, allowing easier simple changes without excessive Modifier load.</summary>
         protected T? baseValue;
 
