@@ -93,10 +93,13 @@ namespace TDP.InteractiveComponents
         /// </summary>
         protected readonly Dictionary<string, Attribute> attributes = new Dictionary<string, Attribute>();
 
+        protected const string discardingEventKeySuffix = "-Discarding";
+
         /// <summary>
         /// Stores an Attribute to be used by this Module, if one with the same name is not already in usage.
         /// </summary>
         /// <typeparam name="T">Attribute class.</typeparam>
+        /// <param name="discardOnDecommission">Whether to discard this Attribute when this Module is decommissioned.</param>
         public virtual void AddAttribute<T>(T attribute, bool discardOnDecommission = true) where T : Attribute
         {
             // avoid duplicates by checking immutable name
@@ -106,7 +109,7 @@ namespace TDP.InteractiveComponents
                 attributes.Add(attribute.name, attribute);
 
                 if (discardOnDecommission)
-                    OnDecommission.AddListener(attribute.Discard, attribute.uid + decommissionEventKeySuffix); // (does not remove them from local dictionary, although that should be irrelevant at that point) (creates more bloat than discarding all on decommission, but retains easier customisation)
+                    OnDecommission.AddListener(attribute.Discard, attribute.uid + discardingEventKeySuffix); // (does not remove them from local dictionary, although that should be irrelevant at that point) (creates more bloat than discarding all on decommission, but retains easier customisation)
             }
             else if (attributes[attribute.name] is not T)
                 MessageOutput.Log($"Cannot add {typeof(T).Name} '{attribute.name}' because {typeof(LoadedModule).Name} already uses an Attribute with that name but of a different Type: {attributes[attribute.name].GetType().Name}.");
@@ -116,11 +119,11 @@ namespace TDP.InteractiveComponents
         /// Globally registers a new Modifier to be applied to Attributes, excluding duplicates.
         /// </summary>
         /// <returns>The new Modifier if added, otherwise the already existing duplicate.</returns>
-        /// <param name="chainDecommission">Whether to decommission this Modifier when this Module is decommissioned. (Should be enabled for Modifiers uniquely affecting this Module)</param>
-        protected virtual T AddModifier<T>(T modifier, bool chainDecommission = false) where T : Modifier
+        /// <param name="discardOnDecommission">Whether to discard this Modifier when this Module is decommissioned. (Can be useful to disable if the same Modifier would be created and decommissioned repeatedly otherwise)</param>
+        protected virtual T AddModifier<T>(T modifier, bool discardOnDecommission = true) where T : Modifier
         {
-            if (chainDecommission)
-                OnDecommission.AddListener(modifier.Decommission, modifier.uid + decommissionEventKeySuffix);
+            if (discardOnDecommission)
+                OnDecommission.AddListener(modifier.Decommission, modifier.uid + discardingEventKeySuffix);
 
             return GlobalManager.AddModifier(modifier);
         }

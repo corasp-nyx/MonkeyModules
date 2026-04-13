@@ -21,12 +21,7 @@ namespace TDP.InteractiveComponents
             // create personal source modifier and publish it to gather sources
             appliedModifiers ??= new List<Modifier>();
             sourceModifier = GlobalManager.AddModifier(new SourceModifier<T>(new List<ModifierRequirement>() { new ModifierAttributeIdRequirement(uid) }, sourceRequirements, targetIndex));
-        }
-
-        public override void Decommission()
-        {
-            // decommission personal source modifier along with this attribute
-            sourceModifier.Decommission();
+            OnDecommission.AddListener(sourceModifier.Decommission, sourceModifier.uid + "-Discarding");
         }
     }
 

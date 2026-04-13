@@ -10,6 +10,9 @@ namespace TDP.InteractiveComponents
     /// </summary>
     public abstract class Modifier : InteractiveComponent
     {
+        /// <summary>The enforcers of this Modifier.</summary>
+        protected List<object>? enforcers;
+
         /// <summary>Priority determining the place in Attribute modification order.</summary>
         public abstract int priority { get; protected set; }
 
@@ -29,15 +32,75 @@ namespace TDP.InteractiveComponents
         }
 
         /// <summary>
+        /// Decommissions this Modifier when discarded by all enforcers, calling OnChange one last time, before cutting connections and marking it as decommissioned.
+        /// </summary>
+        public virtual void Discard(object discardingEnforcer)
+        {
+            if (discardingEnforcer != null)
+                UnregisterEnforcer(discardingEnforcer);
+
+            if ((enforcers?.Count ?? 0) == 0)
+                Decommission();
+        }
+
+        /// <summary>
         /// Decommissions this Modifier, calling OnChange one last time, before cutting connections and marking it to not be used any further.
         /// </summary>
         public override void Decommission()
         {
+            if (enforcers != null)
+                UnregisterEnforcers(enforcers);
             GlobalManager.RemoveModifier(this);
             OnChange.Invoke(new List<Attribute>());
             OnChange.ClearListeners();
 
             base.Decommission();
+        }
+
+        /// <summary>
+        /// Registers a class enforcing this Modifier to affect Attributes.
+        /// </summary>
+        /// <param name="enforcer">Usually a Module.</param>
+        public virtual void RegisterEnforcer(object enforcer)
+        {
+            enforcers ??= new List<object>();
+            if (!enforcers.Contains(enforcer))
+                enforcers.Add(enforcer);
+        }
+
+        /// <summary>
+        /// Registers classes using this Modifier to affect Attributes.
+        /// </summary>
+        /// <param name="enforcers">Usually Modules.</param>
+        public virtual void RegisterEnforcers(IEnumerable<object> enforcers)
+        {
+            foreach (object user in enforcers)
+                RegisterEnforcer(user);
+        }
+
+        /// <summary>
+        /// Unregisters a class no longer enforcing this Modifier's existence.
+        /// </summary>
+        /// <param name="enforcer">Generally a Module.</param>
+        public virtual void UnregisterEnforcer(object enforcer)
+        {
+            enforcers?.RemoveAll(registration => registration == enforcer);
+        }
+
+        /// <summary>
+        /// Unregisters classes no longer enforcing this Modifier's existence.
+        /// </summary>
+        /// <param name="enforcers">Generally Modules.</param>
+        public virtual void UnregisterEnforcers(IEnumerable<object> enforcers)
+        {
+            foreach (object enforcer in new List<object>(enforcers))
+                UnregisterEnforcer(enforcer);
+        }
+
+        /// <returns>Enforcers of this Modifier (does not return null)</returns>
+        public virtual object[] GetEnforcers()
+        {
+            return enforcers?.ToArray() ?? new object[0];
         }
 
         /// <summary>
