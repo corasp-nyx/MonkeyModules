@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 #nullable enable
-namespace TDP.InteractiveComponents
+namespace corasp_nyx.MonkeyModules
 {
     /// <summary>
     /// Modifiers are applied to an Attribute in order of these priorities.

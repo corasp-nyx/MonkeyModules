@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 #nullable enable
-namespace TDP.InteractiveComponents
+namespace corasp_nyx.MonkeyModules
 {
     /// <summary>
     /// A conditional requirement used to filter which Attributes are affected by a Modifier.

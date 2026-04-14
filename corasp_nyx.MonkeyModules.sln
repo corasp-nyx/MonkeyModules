@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.8.34330.188
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TDP.InteractiveComponents", "TDP.InteractiveComponents.csproj", "{53A3DBEB-F7C5-4B71-B254-9C184B7F04F4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "corasp_nyx.MonkeyModules", "corasp_nyx.MonkeyModules.csproj", "{53A3DBEB-F7C5-4B71-B254-9C184B7F04F4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

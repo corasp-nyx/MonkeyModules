@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 
 #nullable enable
-namespace TDP.InteractiveComponents
+namespace corasp_nyx.MonkeyModules
 {
     public static class MessageOutput
     {

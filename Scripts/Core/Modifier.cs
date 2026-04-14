@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 #nullable enable
-namespace TDP.InteractiveComponents
+namespace corasp_nyx.MonkeyModules
 {
     /// <summary>
     /// Base Modifer class. Does not include Attribute modification. To modify Attribute&lt;T&gt;, use Modifier&lt;T&gt;.

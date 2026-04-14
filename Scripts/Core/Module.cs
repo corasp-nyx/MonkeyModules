@@ -4,7 +4,7 @@ using System.Linq;
 using System.Xml.Linq;
 
 #nullable enable
-namespace TDP.InteractiveComponents
+namespace corasp_nyx.MonkeyModules
 {
     /// <summary>
     /// Base Module class. Does not include Attributes.
