@@ -33,7 +33,7 @@ namespace TDP.InteractiveComponents
             this.name = name;
 
             // validate newly created modifiers
-            GlobalManager.OnModifierPublished.AddListener((Modifier modifier) => { if (ValidateModifier(modifier) && Calculate()) OnChange.Invoke(new List<Attribute>()); }, uid + validationEventKeySuffix);
+            GlobalManager.OnModifierPublished.AddListener((Modifier modifier) => { if (ValidateModifier(modifier)) NotifyOfModifierChange(new()); }, uid + validationEventKeySuffix);
         }
 
         /// <summary>
@@ -71,7 +71,10 @@ namespace TDP.InteractiveComponents
             if (!users.Contains(user))
             {
                 users.Add(user);
-                NotifyOfModifierChange(new()); // revalidate modifiers after user change or perhaps for first time after creating attribute
+
+                // refresh modifiers after user change or perhaps for first time after creating attribute
+                RetrieveModifiers();
+                NotifyOfModifierChange(new());
             }
         }
 
@@ -92,7 +95,10 @@ namespace TDP.InteractiveComponents
         public virtual void UnregisterUser(object user)
         {
             users?.RemoveAll(registration => registration == user);
-            NotifyOfModifierChange(new()); // revalidate modifiers after user change (todo: prevent this from firing one more time before decommission when being discarded?)
+
+            // refresh modifiers after user change (todo: prevent this from firing one more time before decommission when being discarded?) (checking remaining user count here as well would be risky because discard is a virtual method)
+            RetrieveModifiers();
+            NotifyOfModifierChange(new());
         }
 
         /// <summary>
@@ -195,9 +201,8 @@ namespace TDP.InteractiveComponents
             // recalculate attribute value and notify sourcing modifiers on change, as long as this attribute has not been recalculated through a single change too many times
             if (changedAttributes.FindAll(attribute => attribute == this).Count < maxRecursionsOnModCalculation)
             {
-                // refresh modifiers
+                // dispose decommissioned modifiers
                 DisposeModifiers();
-                RetrieveModifiers();
 
                 // check if value has changed
                 if (Calculate())
