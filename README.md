@@ -1,5 +1,5 @@
-# InteractiveComponents [Working Title]
-Modular components with globally modifiable and dynamically reactive attributes.
+# MonkeyModules [Working Title]
+Systemic modules with globally modifiable and dynamically reactive attributes.
 
 Easily buildable into an Entity Component System useful for games with large amounts of dynamic ability stats and modifiers.
 
