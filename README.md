@@ -78,7 +78,10 @@ A barebones method for taking damage or healing can be as simple as this, as cla
 ```C#
 public virtual void AdjustHealth(float amount)
 {
-    GetAttribute<Attribute<float>>("Health")?.SetBaseValue(healthAttribute.GetValue() + amount);
+    Attribute<float>? healthAttribute = GetAttribute<Attribute<float>>("Health");
+    
+    if (healthAttribute != null)
+        healthAttribute.SetBaseValue(healthAttribute.GetValue() + amount);
 }
 ```
 
