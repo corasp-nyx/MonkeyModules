@@ -73,19 +73,28 @@ public void Initialise(EntityModule entity, float health, float maxHealth)
 }
 ```
 
-Halving the entity's max health is now as easy as creating a MultiplyModifier like so:
+A barebones method for taking damage or healing can be as simple as this, as clamping, etc. already gets handled by modifiers:
+
+```C#
+public virtual void AdjustHealth(float amount)
+{
+    GetAttribute<Attribute<float>>("Health")?.SetBaseValue(healthAttribute.GetValue() + amount);
+}
+```
+
+An operation such as halving the entity's max health is now as easy as creating a single MultiplyModifier from anywhere:
 
 ```C#
 AddModifier(
     new MultiplyModifier(
         new List<ModifierRequirement>() {
             new ModifierAttributeNameRequirement("MaxHealth"),
-            new ModifierAttributeUserIdRequirement(uid) },
-        0.5f),
-    true);
+            new ModifierAttributeUserTypeRequirement(typeof(EntityHealth)),
+            new ModifierAttributeUserParentIdRequirement(entity.uid) },
+        0.5f));
 ```
 
-Modifiers can be created and applied from any Module with this method, or added by calling GlobalManager.AddModifier() as an alternative. Instead of using the Module's uid, other ModifierRequirements can also be used or made to accurately target the correct Module as well.
+Modifiers can be created and applied from any Module with this method, or added by calling GlobalManager.AddModifier() as an alternative. Various different ModifierRequirements can be used or made to accurately target the correct Attributes.
 
 Multiple other examples are included in the Examples/ folder.
 
