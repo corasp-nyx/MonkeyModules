@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 #nullable enable
-namespace TDP.InteractiveComponents.Presets
+namespace corasp_nyx.MonkeyModules.Presets
 {
     public class AddModifier : Modifier<float> // (using 'float?' as generic type might be necessary?) (it doesnt seem to be)
     {

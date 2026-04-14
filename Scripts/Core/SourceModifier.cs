@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 #nullable enable
-namespace TDP.InteractiveComponents
+namespace corasp_nyx.MonkeyModules
 {
     /// <summary>
     /// A Modifier that replaces the value of modified Attributes with the value of another source Attribute matching specified conditions.

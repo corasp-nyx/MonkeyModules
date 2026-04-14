@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace TDP.InteractiveComponents
+namespace corasp_nyx.MonkeyModules
 {
     public abstract class InteractiveComponent
     {

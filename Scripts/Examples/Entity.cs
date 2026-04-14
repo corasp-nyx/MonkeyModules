@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using TDP.InteractiveComponents.Presets;
+using corasp_nyx.MonkeyModules.Presets;
 
 #nullable enable
-namespace TDP.InteractiveComponents.Examples
+namespace corasp_nyx.MonkeyModules.Examples
 {
     public class Entity : LoadedModule
     {

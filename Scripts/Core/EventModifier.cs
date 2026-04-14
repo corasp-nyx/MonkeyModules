@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 
 #nullable enable
-namespace TDP.InteractiveComponents
+namespace corasp_nyx.MonkeyModules
 {
     /// <summary>
     /// A Modifier that invokes an Event when triggered by the value of an affected Attribute changing in a specified way. Does not apply any value modifications.

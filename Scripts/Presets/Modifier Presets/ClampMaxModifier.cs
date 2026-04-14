@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 
 #nullable enable
-namespace TDP.InteractiveComponents.Presets
+namespace corasp_nyx.MonkeyModules.Presets
 {
     public class ClampMaxModifier : Modifier<float>
     {

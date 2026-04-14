@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 
 #nullable enable
-namespace TDP.InteractiveComponents
+namespace corasp_nyx.MonkeyModules
 {
     /// <summary>
     /// Container used to store groups of effects in a hierarchy.
