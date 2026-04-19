@@ -1,6 +1,12 @@
-﻿using System;
+﻿/*
+ *  Monkey Modules
+ *  Copyright (c) 2026 corasp~nyx
+ *
+ *  Licensed under the MIT License; you may only use this file in compliance with it.
+ */
+
+using System;
 using System.Collections.Generic;
-using System.Linq;
 
 #nullable enable
 namespace corasp_nyx.MonkeyModules
