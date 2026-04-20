@@ -18,7 +18,7 @@ namespace corasp_nyx.MonkeyModules
     /// <typeparam name="T">Payload Type.</typeparam>
     public class Event<T>
     {
-        /// <summary>The Actions to be invoked when this Event is called. Contains revokable keys paired with single-payload Actions.</summary>
+        /// <summary>The Actions to be invoked when this Event is called. Contains revocable keys paired with single-payload Actions.</summary>
         protected List<KeyValuePair<string, Action<T>>>? listeners;
 
         /// <summary>
