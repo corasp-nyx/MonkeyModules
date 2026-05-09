@@ -19,6 +19,26 @@ namespace corasp_nyx.MonkeyModules
     {
         public readonly List<Module> subModules = new List<Module>();
 
+        public virtual T? GetSubModule<T>(bool recursive = false) where T : Module => GetSubModule(typeof(T)) as T;
+        public virtual Module? GetSubModule(Type type, bool recursive = false)
+        {
+            if (!decommissioned)
+            {
+                foreach (Module subModule in subModules)
+                    if (subModule.GetType() == type)
+                        return subModule;
+                    else if (recursive)
+                        foreach (Module subSubModule in subModule.subModules)
+                        {
+                            Module? target = subSubModule.GetSubModule(type, recursive);
+                            if (target != null)
+                                return target;
+                        }
+            }
+
+            return null;
+        }
+
         /*private List<Modifier>? createdModifiers;
 
         protected void CreateModifier(Modifier modifier)
