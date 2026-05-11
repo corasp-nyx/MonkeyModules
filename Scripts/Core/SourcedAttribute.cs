@@ -35,7 +35,7 @@ namespace corasp_nyx.MonkeyModules
     /// <summary>
     /// An Attribute sourcing its base value from the combined values of any other Attributes matching specified conditions.
     /// </summary>
-    public class CombinedSourcedAttribute : SourcedAttribute<float>
+    public class SourcedCombinedAttribute : SourcedAttribute<float>
     {
         public enum CombinationProcess
         {
@@ -47,7 +47,7 @@ namespace corasp_nyx.MonkeyModules
         /// <param name="baseValue">Fallback value used when no source is available.</param>
         /// <param name="sourceRequirements">The requirements for Attributes forming the source pool.</param>
         /// <param name="combination">The combination method used on the source values.</param>
-        public CombinedSourcedAttribute(string name, float baseValue, IEnumerable<ModifierRequirement> sourceRequirements, CombinationProcess combination) : base(name, baseValue, sourceRequirements, -2)
+        public SourcedCombinedAttribute(string name, float baseValue, IEnumerable<ModifierRequirement> sourceRequirements, CombinationProcess combination) : base(name, baseValue, sourceRequirements, -2)
         {
             switch (combination)
             {
@@ -68,7 +68,7 @@ namespace corasp_nyx.MonkeyModules
         /// <param name="baseValue">Fallback value used when no source is available.</param>
         /// <param name="sourceRequirements">The requirements for Attributes forming the source pool.</param>
         /// <param name="combinationAggregate">The aggregate used to combine the source values.</param>
-        public CombinedSourcedAttribute(string name, float baseValue, IEnumerable<ModifierRequirement> sourceRequirements, Func<float, float, float> combinationAggregate) : base(name, baseValue, sourceRequirements, -2)
+        public SourcedCombinedAttribute(string name, float baseValue, IEnumerable<ModifierRequirement> sourceRequirements, Func<float, float, float> combinationAggregate) : base(name, baseValue, sourceRequirements, -2)
         {
             combination = combinationAggregate;
 
@@ -80,8 +80,7 @@ namespace corasp_nyx.MonkeyModules
             // listen to changes from all sources used in combination
             sourceModifier.OnAnySourceChanged.AddListener(NotifyOfModifierChange, uid + calculationEventKeySuffix);
 
-            // reduce source modifier functions to manual output (todo: check if a duplicate returned by ecsmanager could ruin this) (also decommission in parent) (relevant question: do ModifierRequirements equal each other?)
-            GlobalManager.RemoveModifier(sourceModifier);
+            // reduce source modifier functions to manual output (todo: check if a duplicate returned by ecsmanager could ruin this) (also decommission in parent) (relevant question: do ModifierRequirements equal each other?) (I removed the GlobalManager.RemoveModifier line but idk what all this meant.)
             appliedModifiers?.Remove(sourceModifier);
             sourceModifier.OnChange.RemoveListener(uid + calculationEventKeySuffix);
         }
@@ -93,6 +92,39 @@ namespace corasp_nyx.MonkeyModules
 
             // combine source values
             baseValue = sourceModifier.GetAllSources().Select(attribute => attribute.GetValue()).Aggregate(combination);
+
+            // calculate and restore base value
+            bool hasChanged = base.Calculate();
+            baseValue = cachedBaseValue;
+            return hasChanged;
+        }
+    }
+
+    /// <summary>
+    /// An Attribute which flips its base value whenever an other Attribute matching specified conditions has a value contradicting the default base value.
+    /// </summary>
+    public class SourcedSwitchAttribute : SourcedAttribute<bool>
+    {
+        /// <param name="defaultValue">Default unmodified value.</param>
+        /// <param name="sourceRequirements">The requirements for Attributes forming the source pool.</param>
+        public SourcedSwitchAttribute(string name, bool defaultValue, IEnumerable<ModifierRequirement> sourceRequirements) : base(name, defaultValue, sourceRequirements, -2)
+        {
+            // listen to changes from all sources used in combination
+            sourceModifier.OnAnySourceChanged.AddListener(NotifyOfModifierChange, uid + calculationEventKeySuffix);
+
+            // reduce source modifier functions to manual output
+            appliedModifiers?.Remove(sourceModifier);
+            sourceModifier.OnChange.RemoveListener(uid + calculationEventKeySuffix);
+        }
+
+        protected override bool Calculate() // inject combined source values into calculation as base value
+        {
+            // cache base value for restoration
+            bool cachedBaseValue = baseValue;
+
+            // find modifying source value
+            if (sourceModifier.GetAllSources().Select(attribute => attribute.GetValue()).Any(sourceValue => sourceValue == !baseValue))
+                baseValue = !baseValue;
 
             // calculate and restore base value
             bool hasChanged = base.Calculate();

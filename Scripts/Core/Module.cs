@@ -43,7 +43,7 @@ namespace corasp_nyx.MonkeyModules
         public virtual T[] GetSubModules<T>(bool recursive = false) where T : class => (recursive ? subModules.OfType<T>().Concat(subModules.SelectMany(module => module.GetSubModules<T>(recursive))) : subModules.OfType<T>()).ToArray();
 
         /// <returns>All subordinate Modules of this Module with specified type. (does not return null)</returns>
-        public virtual Module[] GetSubModules(Type type, bool recursive = false) => (recursive ? subModules.Concat(subModules.SelectMany(module => module.GetSubModules(type, recursive))) : subModules).Where(module => module.GetType() == type).ToArray();
+        public virtual Module[] GetSubModules(Type type, bool recursive = false) => (recursive ? subModules.Concat(subModules.SelectMany(module => module.GetSubModules(type, recursive))) : subModules).Where(module => module.GetType().IsAssignableFrom(type)).ToArray();
 
 
         /*private List<Modifier>? createdModifiers;

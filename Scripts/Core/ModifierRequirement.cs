@@ -67,6 +67,28 @@ namespace corasp_nyx.MonkeyModules
     }
 
     /// <summary>
+    /// Requires modified Attributes to be of specified Type.
+    /// </summary>
+    public readonly struct ModifierAttributeTypeRequirement : ModifierRequirement
+    {
+        public readonly Type type;
+
+        public ModifierAttributeTypeRequirement(Type type)
+        {
+            this.type = type;
+        }
+
+        public bool IsApplicable(Attribute attribute)
+        {
+            // copy value locally in struct method for use in lambda expression
+            Type type = this.type;
+
+            // returns true if Attribute is of the required Type
+            return attribute.GetType().IsAssignableFrom(type);
+        }
+    }
+
+    /// <summary>
     /// Requires modified Attributes to have a user of specified Type.
     /// </summary>
     public readonly struct ModifierAttributeUserTypeRequirement : ModifierRequirement
@@ -84,7 +106,7 @@ namespace corasp_nyx.MonkeyModules
             Type userType = this.userType;
 
             // returns true if any user is of the required Type
-            return attribute.GetUsers().Any(user => user.GetType() == userType);
+            return attribute.GetUsers().Any(user => user.GetType().IsAssignableFrom(userType));
         }
     }
 
