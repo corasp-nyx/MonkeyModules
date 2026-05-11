@@ -19,25 +19,32 @@ namespace corasp_nyx.MonkeyModules
     {
         public readonly List<Module> subModules = new List<Module>();
 
+        /// <returns>The first subordinate Module of this Module with specifide type. (faster than GetSubModules())</returns>
         public virtual T? GetSubModule<T>(bool recursive = false) where T : Module => GetSubModule(typeof(T)) as T;
+
+        /// <returns>The first subordinate Module of this Module with specifide type. (faster than GetSubModules())</returns>
         public virtual Module? GetSubModule(Type type, bool recursive = false)
         {
-            if (!decommissioned)
-            {
-                foreach (Module subModule in subModules)
-                    if (subModule.GetType() == type)
-                        return subModule;
-                    else if (recursive)
-                        foreach (Module subSubModule in subModule.subModules)
-                        {
-                            Module? target = subSubModule.GetSubModule(type, recursive);
-                            if (target != null)
-                                return target;
-                        }
-            }
+            foreach (Module subModule in new List<Module>(subModules))
+                if (subModule.GetType() == type)
+                    return subModule;
+                else if (recursive)
+                    foreach (Module subSubModule in new List<Module>(subModule.subModules))
+                    {
+                        Module? target = subSubModule.GetSubModule(type, recursive);
+                        if (target != null)
+                            return target;
+                    }
 
             return null;
         }
+
+        /// <returns>All subordinate Modules of this Module with specified inheritance. (does not return null)</returns>
+        public virtual T[] GetSubModules<T>(bool recursive = false) where T : class => (recursive ? subModules.OfType<T>().Concat(subModules.SelectMany(module => module.GetSubModules<T>(recursive))) : subModules.OfType<T>()).ToArray();
+
+        /// <returns>All subordinate Modules of this Module with specified type. (does not return null)</returns>
+        public virtual Module[] GetSubModules(Type type, bool recursive = false) => (recursive ? subModules.Concat(subModules.SelectMany(module => module.GetSubModules(type, recursive))) : subModules).Where(module => module.GetType() == type).ToArray();
+
 
         /*private List<Modifier>? createdModifiers;
 
