@@ -28,7 +28,7 @@ namespace corasp_nyx.MonkeyModules
 
         public enum SourceTarget
         {
-            newest = -1, oldest = 0, index1 = 1, index2 = 2
+            none = -2, newest = -1, oldest = 0, index1 = 1, index2 = 2
         }
 
         protected readonly IEnumerable<ModifierRequirement> sourceRequirements;
@@ -62,7 +62,7 @@ namespace corasp_nyx.MonkeyModules
                 value = targetSource.GetValue();
         }
 
-        /// <returns>All available source Attributes matching requirements.</returns>
+        /// <returns>All available source Attributes matching requirements. (does not return null)</returns>
         public virtual Attribute<T>[] GetAllSources()
         {
             return availableSources?.ToArray() ?? new Attribute<T>[0];
@@ -78,6 +78,7 @@ namespace corasp_nyx.MonkeyModules
                 {
                     availableSources.Add((Attribute<T>)attribute);
                     attribute.OnChange.AddListener(OnAnySourceChanged.Invoke, uid + anySourceChangedEventKeySuffix);
+                    OnAnySourceChanged.Invoke(new List<Attribute>());
                 }
 
                 // refresh targeted source
@@ -121,6 +122,8 @@ namespace corasp_nyx.MonkeyModules
                 else
                     switch (target)
                         {
+                            case (int)SourceTarget.none:
+                                return null;
                             case (int)SourceTarget.newest:
                                 return availableSources.Last();
                             case (int)SourceTarget.oldest:
