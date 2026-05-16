@@ -60,12 +60,12 @@ namespace corasp_nyx.MonkeyModules
         /// </summary>
         public override void Decommission()
         {
+            base.Decommission();
+
             if (users != null)
                 UnregisterUsers(users);
             OnChange.Invoke(new List<Attribute>() { this });
             OnChange.ClearListeners();
-
-            base.Decommission();
         }
 
         /// <summary>

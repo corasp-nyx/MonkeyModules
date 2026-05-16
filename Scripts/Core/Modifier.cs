@@ -55,13 +55,13 @@ namespace corasp_nyx.MonkeyModules
         /// </summary>
         public override void Decommission()
         {
+            base.Decommission();
+
             if (enforcers != null)
                 UnregisterEnforcers(enforcers);
             GlobalManager.RemoveModifier(this);
             OnChange.Invoke(new List<Attribute>());
             OnChange.ClearListeners();
-
-            base.Decommission();
         }
 
         /// <summary>
