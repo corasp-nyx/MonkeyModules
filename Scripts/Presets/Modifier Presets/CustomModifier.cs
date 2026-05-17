@@ -44,7 +44,7 @@ namespace corasp_nyx.MonkeyModules.Presets
 
         private Func<T?, Attribute, T?> modification;
 
-        /// <param name="modification">Modification of target Attribute values. Target value and target Attribute in, modified value out.</param>
+        /// <param name="modification">Modification of target Attribute values. Target value and Attribute in, modified value out.</param>
         public CustomConstantModifier(IEnumerable<ModifierRequirement> requirements, Func<T?, Attribute, T?> modification, int priority) : base(requirements)
         {
             this.priority = priority;

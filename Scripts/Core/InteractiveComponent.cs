@@ -25,6 +25,7 @@ namespace corasp_nyx.MonkeyModules
         {
             decommissioned = true;
             OnDecommission.Invoke(this);
+            OnDecommission.ClearListeners();
         }
     }
 }

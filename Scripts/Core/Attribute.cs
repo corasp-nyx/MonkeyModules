@@ -132,7 +132,7 @@ namespace corasp_nyx.MonkeyModules
             // (remove unapplicable modifiers and unhook from their change events)
             if (appliedModifiers != null)
                 foreach (Modifier modifier in new List<Modifier>(appliedModifiers))
-                    if (!modifier.AppliesTo(this))
+                    if (!modifier.AppliesTo(this)) // (todo: why not simply replace this with ValidateModifier())
                     {
                         appliedModifiers.Remove(modifier);
                         modifier.OnChange.RemoveListener(uid + calculationEventKeySuffix);
@@ -274,16 +274,17 @@ namespace corasp_nyx.MonkeyModules
         /// <returns>Whether value has changed after calculation.</returns>
         protected override bool Calculate()
         {
-            // cache value to inspect change after recalculation
-            T? cachedValue = value;
-
             // modify value in order of modifier priority
-            value = baseValue;
+            T? modifiedValue = baseValue;
             if (appliedModifiers != null)
-                foreach (Modifier<T> modifier in new List<Modifier>(appliedModifiers.OrderBy(modifier => modifier.priority))) // (does this implicit conversion work??)
-                    modifier.Modify(ref value, this);
+                foreach (Modifier<T> modifier in appliedModifiers.OrderBy(modifier => modifier.priority).ToArray()) // (does this implicit conversion work??)
+                    modifier.Modify(ref modifiedValue, this);
 
-            return !(cachedValue?.Equals(value) ?? value == null);
+            // apply modified value
+            bool valueChanged = !(value?.Equals(modifiedValue) ?? modifiedValue == null);
+            value = modifiedValue;
+
+            return valueChanged;
         }
     }
 }

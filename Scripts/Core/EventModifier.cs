@@ -30,10 +30,10 @@ namespace corasp_nyx.MonkeyModules
         {
             if (attribute is Attribute<T>)
             {
-                Attribute<T> trigger = (Attribute<T>)attribute;
-                trigger.OnChange.RemoveListener(uid + triggerEventKeySuffix);
-                T? cachedValue = trigger.GetValue();
-                trigger.OnChange.AddListener((_) => { trigger.OnChange.RemoveListener(uid + triggerEventKeySuffix); if (CheckTrigger(cachedValue, trigger.GetValue(), trigger)) OnTriggered.Invoke(trigger); }, uid + triggerEventKeySuffix);
+                Attribute<T> target = (Attribute<T>)attribute;
+                target.OnChange.RemoveListener(uid + triggerEventKeySuffix);
+                T? cachedValue = target.GetValue();
+                target.OnChange.AddListener((_) => { target.OnChange.RemoveListener(uid + triggerEventKeySuffix); if (AppliesTo(target) && CheckTrigger(cachedValue, target.GetValue(), target)) OnTriggered.Invoke(target); }, uid + triggerEventKeySuffix);
             }
         }
 
@@ -43,61 +43,5 @@ namespace corasp_nyx.MonkeyModules
         /// Check if the change of an affected Attribute's value matches Event trigger conditions.
         /// </summary>
         protected abstract bool CheckTrigger(T? oldValue, T? newValue, Attribute<T> attribute);
-    }
-
-    public class ChangedValueEventModifier<T> : EventModifier<T>
-    {
-        public ChangedValueEventModifier(IEnumerable<ModifierRequirement> requirements) : base(requirements) { }
-
-        protected override bool CheckTrigger(T? oldValue, T? newValue, Attribute<T> attribute)
-        {
-            return !oldValue?.Equals(newValue) ?? newValue == null;
-        }
-
-        protected override bool MatchesCalculationOf(Modifier<T> other) => true;
-    }
-
-    public class TargetValueEventModifier<T> : EventModifier<T>
-    {
-        protected readonly T targetValue;
-
-        public TargetValueEventModifier(IEnumerable<ModifierRequirement> requirements, T targetValue) : base(requirements)
-        {
-            this.targetValue = targetValue;
-        }
-
-        protected override bool CheckTrigger(T? oldValue, T? newValue, Attribute<T> attribute)
-        {
-            return !(oldValue?.Equals(newValue) ?? newValue == null) && (newValue?.Equals(targetValue) ?? targetValue == null);
-        }
-
-        protected override bool MatchesCalculationOf(Modifier<T> other)
-        {
-            return other is TargetValueEventModifier<T> ? (other as TargetValueEventModifier<T>)?.targetValue?.Equals(targetValue) ?? targetValue == null : false;
-        }
-    }
-
-    public class IncreasedValueEventModifier : EventModifier<float>
-    {
-        public IncreasedValueEventModifier(IEnumerable<ModifierRequirement> requirements) : base(requirements) { }
-
-        protected override bool CheckTrigger(float oldValue, float newValue, Attribute<float> attribute)
-        {
-            return newValue > oldValue;
-        }
-
-        protected override bool MatchesCalculationOf(Modifier<float> other) => true;
-    }
-
-    public class DecreasedValueEventModifier : EventModifier<float>
-    {
-        public DecreasedValueEventModifier(IEnumerable<ModifierRequirement> requirements) : base(requirements) { }
-
-        protected override bool CheckTrigger(float oldValue, float newValue, Attribute<float> attribute)
-        {
-            return newValue < oldValue;
-        }
-
-        protected override bool MatchesCalculationOf(Modifier<float> other) => true;
     }
 }
