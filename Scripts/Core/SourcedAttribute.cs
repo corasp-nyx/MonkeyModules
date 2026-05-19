@@ -28,7 +28,7 @@ namespace corasp_nyx.MonkeyModules
             // create personal source modifier and publish it to gather sources
             appliedModifiers ??= new List<Modifier>();
             sourceModifier = new SourceModifier<T>(new List<ModifierRequirement>() { new ModifierAttributeIdRequirement(uid) }, sourceRequirements, targetIndex);
-            GlobalManager.AddModifier(sourceModifier); // (added seperately to prevent issues in inheriting attributes calculating before initialisation)
+            GlobalManager.AddModifier(sourceModifier); // (added seperately to prevent issues in inheriting attributes calculating before sourceModifier variable initialisation)
             OnDecommission.AddListener(sourceModifier.Decommission, sourceModifier.uid + "-Discarding");
         }
     }
