@@ -167,8 +167,11 @@ namespace corasp_nyx.MonkeyModules
         /// <typeparam name="T">Attribute class.</typeparam>
         public virtual void RemoveAttribute<T>(T attribute) where T : Attribute
         {
-            attribute.UnregisterUser(this);
             attributes.Remove(attribute.name);
+
+            // unregister on attribute side
+            if (attribute.GetUsers().Contains(this))
+                attribute.UnregisterUser(this);
         }
 
         /// <summary>
@@ -177,8 +180,8 @@ namespace corasp_nyx.MonkeyModules
         /// <typeparam name="T">Attribute class.</typeparam>
         public virtual void DiscardAttribute<T>(T attribute) where T : Attribute
         {
-            attribute.UnregisterUser(this);
             attributes.Remove(attribute.name);
+            attribute.Discard(this);
         }
 
         /// <returns>All Attributes used by this Module (does not return null)</returns>

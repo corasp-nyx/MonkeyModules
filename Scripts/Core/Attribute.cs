@@ -103,6 +103,10 @@ namespace corasp_nyx.MonkeyModules
         {
             users?.RemoveAll(registration => registration == user);
 
+            // remove on module side
+            if ((user as LoadedModule)?.HasAttribute(name) ?? false)
+                ((LoadedModule)user).RemoveAttribute(this);
+
             // refresh modifiers after user change (todo: prevent this from firing one more time before decommission when being discarded?) (checking remaining user count here as well would be risky because discard is a virtual method)
             RetrieveModifiers();
             NotifyOfModifierChange(new());
@@ -114,7 +118,7 @@ namespace corasp_nyx.MonkeyModules
         /// <param name="users">Generally Modules.</param>
         public virtual void UnregisterUsers(IEnumerable<object> users)
         {
-            foreach (object user in new List<object>(users))
+            foreach (object user in users.ToArray())
                 UnregisterUser(user);
         }
 
