@@ -15,65 +15,62 @@ As alluded to with the term 'typically', everything is designed to be easily cus
 ## Example Usage
 For example, a game entity could have an EntityHealth Module, tracking its current and max health.
 
-For doing so, the Module can call AddAttribute() to make those values available:
+For doing so, the Module can call AddAttribute() to make those values available and immediately assign them:
 
 ```C#
 public class EntityHealth : LoadedModule
 {
-    public EntityHealth()
+    public EntityHealth(Entity entity, float health = 1f, float maxHealth = 1f)
     {
         // create health attribute
-        AddAttribute(new Attribute<float>("Health"));
+        AddAttribute(new Attribute<float>("Health", health));
         
         // create max health attribute
-        Attribute<float> maxHealthAttribute = new Attribute<float>("MaxHealth"); // this will be used again in a moment
+        Attribute<float> maxHealthAttribute = new Attribute<float>("MaxHealth", maxHealth);
         AddAttribute(maxHealthAttribute);
 ```
 
 Following this, we could add two Modifiers to automatically clamp the health Attribute between zero and the value of the max health Attribute at all times:
 
 ```C#
-// clamp health between zero and max health attribute value
-
-AddModifier(
-    new ClampMaxModifier(
-        new List<ModifierRequirement>() { // tell the Modifier which Attributes to target
-            new ModifierAttributeNameRequirement("Health"),
-            new ModifierAttributeUserIdRequirement(uid) }, // applies only to this Module (its immutable unique identifier)
-        maxHealthAttribute)); // set maximum to value of max health Attribute
-
-AddModifier(
-    new ClampMinConstantModifier(
-        new List<ModifierRequirement>() {
-            new ModifierAttributeNameRequirement("Health"),
-            new ModifierAttributeUserTypeRequirement(GetType()) }, // applies to all EntityHealth Modules (reduces duplicity)
-        0f)); // set minimum to zero
+    // clamp health between zero and max health attribute value
+    
+    AddModifier(
+        new ClampMaxModifier(
+            new ModifierRequirement[] { // tells the Modifier which Attributes to target
+                new ModifierAttributeNameRequirement("Health"), // Attribute names are immutable and unique per Module
+                new ModifierAttributeUserIdRequirement(uid) }, // each Module, Attribute, and Modifier has a globally unique immutable id
+            maxHealthAttribute)); // set maximum to value of max health Attribute
+    
+    AddModifier(
+        new ClampMinConstantModifier(
+            new ModifierRequirement[] {
+                new ModifierAttributeNameRequirement("Health"),
+                new ModifierAttributeUserTypeRequirement(GetType()) }, // applies to all EntityHealth Modules (reduces duplicity)
+            0f)); // set minimum to zero
 ```
 
-Then we can initialise the Module with custom health and max health values, as well as passing along the parent entity, to which this EntityHealth Module belongs:
+Then we can add a useful event which automatically triggers an entity's death at zero health, as well as parent this Module to that entity:
 
 ```C#
-public void Initialise(EntityModule entity, float health, float maxHealth)
-{
-    // set attribute values
-    GetAttribute<Attribute<float>>("Health")?.SetBaseValue(health);
-    GetAttribute<Attribute<float>>("MaxHealth")?.SetBaseValue(maxHealth);
-
     // register death event at 0 health
     AddModifier(
         new TargetValueEventModifier<float>(
-            new List<ModifierRequirement>() {
+            new ModifierRequirement[] {
                 new ModifierAttributeNameRequirement("Health"),
                 new ModifierAttributeUserIdRequirement(uid) },
             0)).OnTriggered.AddListener((_) => entity.Die(), entity.uid + "-Death");
 
     // parent to entity
     if (!entity.subModules.Contains(this))
-        entity.subModules.Add(this);
+        {
+            entity.subModules.Add(this);
+            entity.OnDecommission.AddListener(Decommission, uid + decommissionEventKeySuffix);
+        }
 }
 ```
 
-A barebones method for taking damage or healing can be as simple as this, as clamping, etc. already gets handled by modifiers:
+A barebones method for taking damage or healing can be as simple as the following, as clamping, etc. already gets handled by the Modifiers:
 
 ```C#
 public virtual void AdjustHealth(float amount)
@@ -81,24 +78,24 @@ public virtual void AdjustHealth(float amount)
     Attribute<float>? healthAttribute = GetAttribute<Attribute<float>>("Health");
     
     if (healthAttribute != null)
-        healthAttribute.SetBaseValue(healthAttribute.GetValue() + amount);
+        healthAttribute.SetBaseValue(healthAttribute.GetBaseValue() + amount);
 }
 ```
 
-An operation such as halving the entity's max health is now as easy as creating a single MultiplyModifier from anywhere:
+An operation such as halving the entity's max health can be done by creating a single MultiplyModifier from anywhere:
 
 ```C#
 AddModifier(
     new MultiplyModifier(
-        new List<ModifierRequirement>() {
+        new ModifierRequirement[] {
             new ModifierAttributeNameRequirement("MaxHealth"),
             new ModifierAttributeUserTypeRequirement(typeof(EntityHealth)),
-            new ModifierAttributeUserParentIdRequirement(entity.uid) },
+            new ModifierAttributeUserIdRequirement(uid) },
         0.5f));
 ```
 
 Modifiers can be created and applied from any Module with this method, or added by calling GlobalManager.AddModifier() as an alternative. Various different ModifierRequirements can be used or made to accurately target the correct Attributes.
 
-Multiple other examples are included in the Examples/ folder.
+Further examples can be found in the /Examples folder.
 
 ## (Work in progress)
